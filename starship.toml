@@ -1,0 +1,33 @@
+format = "$all"
+
+add_newline = false
+
+[battery]
+disabled = false
+full_symbol = "🔋 "
+charging_symbol = "⚡️ "
+discharging_symbol = "💀 "
+
+[[battery.display]]
+threshold = 15
+style = "bold red"
+
+[directory]
+truncation_length = 5
+truncation_symbol = "…/"
+
+[git_metrics]
+disabled = false
+
+[username]
+style_user = "white bold"
+style_root = "black bold"
+format = "|[$user]($style)|-"
+disabled = false
+show_always = true
+
+[hostname]
+ssh_only = false
+format =  "|[$hostname](bold red)| "
+trim_at = ".companyname.com"
+disabled = false
