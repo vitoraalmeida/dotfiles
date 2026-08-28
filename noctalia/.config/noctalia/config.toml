@@ -1,33 +1,160 @@
-[lockscreen]
-enabled = true
-lock_before_suspend = true
-fingerprint = false
+[accessibility]
+ui_scale = 1.1000000089406967
+
+[bar.default]
+border = "primary"
+border_width = 1.5
+capsule_fill = "outline"
+capsule_thickness = 0.67999998852610588
+center = [ "clock", "media" ]
+concave_edge_corners = false
+end = [
+    "tray",
+    "notifications",
+    "clipboard",
+    "network",
+    "bluetooth",
+    "volume",
+    "brightness",
+    "battery",
+    "control-center",
+    "session"
+]
+font_family = "Inconsolata Nerd Font Mono"
+font_weight = 400
+margin_ends = 0
+margin_opposite_edge = 3
+radius = 0
+scale = 1.2000000104308128
+start = [ "void", "launcher", "wallpaper", "workspaces" ]
+
+[battery]
+warning_threshold = 20
 
 [idle]
-behavior_order = ["lock", "screen-off", "suspend"]
+behavior_order = [ "lock", "screen-off", "suspend" ]
 pre_action_fade_seconds = 2.0
 
-[idle.behavior.lock]
-timeout = 300
-action = "lock"
-enabled = true
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = true
+    timeout = 300
 
-[idle.behavior.screen-off]
-timeout = 600
-action = "screen_off"
-enabled = true
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = true
+    timeout = 600
 
-[idle.behavior.suspend]
-timeout = 1800
-action = "lock_and_suspend"
+    [idle.behavior.suspend]
+    action = "lock_and_suspend"
+    enabled = true
+    timeout = 1800
+
+[lockscreen]
 enabled = true
+fingerprint = false
+lock_before_suspend = true
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@HDMI-A-3", "lockscreen-login-box@eDP-1" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-3"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 898.0
+    output = "HDMI-A-3"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@HDMI-A-3".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 898.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
 [shell]
+corner_radius_scale = 0.55000000819563866
+font_family = "Inconsolata Nerd Font Mono"
+lang = "en"
 niri_overview_type_to_launch_enabled = true
-font_family = "Inconsolata Nerd Font"
+
+    [shell.screen_corners]
+    size = 19
+
+[theme]
+builtin = "Noctalia"
+community_palette = "Osaka jade"
+mode = "dark"
+source = "community"
+wallpaper_scheme = "m3-content"
+
+    [theme.templates]
+    builtin_ids = [ "gtk3", "gtk4", "kitty", "niri", "qt", "scroll", "starship" ]
+
+[wallpaper]
+directory = "/home/user/Pictures/Wallpapers"
+
+    [wallpaper.default]
+    path = "/home/user/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
+
+    [wallpaper.last]
+    path = "/home/user/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
+
+    [wallpaper.monitors.eDP-1]
+    path = "/home/user/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
+
+[widget.clock]
+format = "{:%H:%M} {:%A, %x}"
 
 [widget.void]
-type = "custom_button"
 glyph = "U+F32E"
-tooltip = "Void Linux"
 interactive = false
+tooltip = "Void Linux"
+type = "custom_button"
