@@ -1,179 +1,145 @@
-// This config is in the KDL format: https://kdl.dev
-// "/-" comments out the following node.
-// Check the wiki for a full description of the configuration:
-// https://niri-wm.github.io/niri/Configuration:-Introduction
+// niri compositor config — KDL format (https://kdl.dev). "/-" comments out the next node.
+// Docs: https://niri-wm.github.io/niri
+// Most settings hot-reload on save. Exceptions: spawn-at-startup lines and some input
+// settings only apply at niri startup.
+// Bottom of file includes: noctalia.kdl (theme colors, auto-generated) and gpu-mode.kdl (render device).
 
-// Input device configuration.
-// Find the full list of options on the wiki:
-// https://niri-wm.github.io/niri/Configuration:-Input
+// Client-side decorations off: niri draws borders/titlebars instead of the app.
 prefer-no-csd
-spawn-at-startup "pipewire"
-spawn-at-startup "sh" "-c" "sleep 2; exec wireplumber"
+
+// Autostart. Runs ONLY at niri startup — reloading the config does not restart these.
+spawn-at-startup "pipewire"                                          // audio/video server; nothing audio-related works without it
+spawn-at-startup "sh" "-c" "sleep 2; exec wireplumber"               // pipewire session manager (volume routing, devices); 2s delay so pipewire's socket exists first
+spawn-at-startup "/home/user/.local/bin/niri-session-services"    // desktop integration script from install-niri-noctalia.sh
+
 input {
     keyboard {
-	repeat-rate 35
-	repeat-delay 200
+        repeat-rate 35        // keys per second while holding a key; higher = faster typing repeat
+        repeat-delay 200      // ms a key must be held before repeating starts; lower = sooner
         xkb {
-            layout "br"
-            variant "thinkpad"
+            layout "br"           // Brazilian ABNT2 layout; change requires niri restart in some cases
+            variant "thinkpad"    // layout variant; remove if you switch layouts and keys feel wrong
         }
 
-        numlock
+        numlock               // force NumLock on at startup
     }
 
     touchpad {
-        tap
-        //natural-scroll
-    }
-
-    mouse {
+        tap                   // tap-to-click. Uncomment "natural-scroll" to invert two-finger scroll direction.
     }
 
     trackpoint {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "on-button-down"
-        // scroll-button 273
-        // scroll-button-lock
-        // middle-emulation
+        // All options disabled (defaults): off, natural-scroll, accel-speed 0.2,
+        // accel-profile "flat", scroll-method "on-button-down", scroll-button 273,
+        // scroll-button-lock, middle-emulation. Uncomment to override.
     }
 
+    // Hovering a window focuses it. max-scroll-amount="0%" = focusing never auto-scrolls the view.
     focus-follows-mouse max-scroll-amount="0%"
 }
 
+// Disabled output config (whole block commented with /-). If ever enabled:
+//   mode: resolution@refresh Hz. scale 2: HiDPI doubling — logical size becomes physical/2.
+//   position x= y=: manual placement in the global coordinate space; unset/overlapping = auto-placed.
+//   Output scale/transform affect logical size (use logical px when positioning neighbors).
 /-output "eDP-1" {
-    // Uncomment this line to disable this output.
-    // off
-
-    mode "1920x1080@120.030"
-    scale 2
-    transform "normal"
-
-    // Position of the output in the global coordinate space.
-    // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-    // The cursor can only move between directly adjacent outputs.
-    // Output scale and rotation has to be taken into account for positioning:
-    // outputs are sized in logical, or scaled, pixels.
-    // For example, a 3840×2160 output with scale 2.0 will have a logical size of 1920×1080,
-    // so to put another output directly adjacent to it on the right, set its x to 1920.
-    // If the position is unset or results in an overlap, the output is instead placed
-    // automatically.
-    position x=1280 y=0
+    // off                     // uncomment to disable this output entirely
+    mode "1920x1080@120.030"  // "WIDTHxHEIGHT@REFRESH"
+    scale 2                   // HiDPI zoom: 2 = everything twice as big, half the logical pixels
+    transform "normal"        // rotation: "normal" | "90" | "180" | "270" | flipped variants
+    position x=1280 y=0       // manual position; remove to auto-place
 }
 
-// Settings that influence how windows are positioned and sized.
-// Find more information on the wiki:
-// https://niri-wm.github.io/niri/Configuration:-Layout
-
+// Window layout. https://niri-wm.github.io/niri/Configuration:-Layout
 layout {
-    // Set gaps around windows in logical pixels.
-    gaps 6
-    background-color "transparent"
+    gaps 6                          // space between windows and screen edges, in logical px
+    background-color "transparent"  // compositor background; "transparent" shows the wallpaper behind
 
-    center-focused-column "never"
+    center-focused-column "never"   // "never" | "always" | "on-overflow": keep the focused column centered
 
-    preset-column-widths {
+    preset-column-widths {          // widths cycled with Mod+R, as fractions of monitor width
         proportion 0.33333
         proportion 0.5
         proportion 0.66667
     }
 
-    default-column-width { proportion 0.5; }
+    default-column-width { proportion 0.5; }  // width of new windows; {} = let the app decide
+
     focus-ring {
-        width 1
-        //active-color "#7fc8ff"
-        //inactive-color "#505050"
+        width 1                     // thickness of the focused-window ring in logical px; colors live in noctalia.kdl
     }
 
     border {
-        width 2
+        width 1                     // thickness of the border around unfocused windows; colors live in noctalia.kdl
     }
 
-    // You can enable drop shadows for windows.
     shadow {
-        // Uncomment the next line to enable shadows.
-        on
-        softness 30
-
-        spread 5
-
-        offset x=0 y=5
-
-        color "#0007"
+        on                          // delete this line to disable drop shadows
+        softness 30                 // blur size; higher = softer, wider shadow
+        spread 5                    // how far the shadow extends past the window edges
+        offset x=0 y=5              // shadow displacement; y=5 pushes it down
+        color "#0007"               // RRGGBBAA — black at ~44% opacity
     }
-    struts {
-        // left 64
-        // right 64
-        // top 64
-        // bottom 64
-    }
+}
+
+// Environment variables for processes niri spawns.
+environment {
+    // App lookup paths; the Flatpak entries make installed Flatpaks resolvable.
+    // Only change if apps fail to launch or find their resources.
+    XDG_DATA_DIRS "/usr/local/share:/usr/share:/var/lib/flatpak/exports/share:/home/user/.local/share/flatpak/exports/share"
+}
+
+debug {
+    // Tolerate apps that send XDG activation tokens with invalid serials; prevents focus quirks
+    // in buggy clients. Remove if apps start stealing focus unexpectedly.
+    honor-xdg-activation-with-invalid-serial
 }
 
 layer-rule {
-    match namespace="^noctalia-wallpaper"
-    place-within-backdrop true
+    match namespace="^noctalia-wallpaper"  // matches noctalia's wallpaper surface
+    place-within-backdrop true             // render it in the backdrop (behind everything, visible in overview gaps)
 }
 
-spawn-at-startup "/home/user/.local/bin/niri-session-services"
+// Window rules. First matching rule wins per setting. app-id values are case-sensitive regexes.
+// Docs: https://niri-wm.github.io/niri/Configuration:-Window-Rules
 
-hotkey-overlay {
-    // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
-    // skip-at-startup
-}
-
-screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
-
-animations {
-    // Uncomment to turn off all animations.
-    // off
-
-    // Slow down all animations by this factor. Values below 1 speed them up instead.
-    // slowdown 3.0
-}
-
-// Window rules let you adjust behavior for individual windows.
-// Find more information on the wiki:
-// https://niri-wm.github.io/niri/Configuration:-Window-Rules
-
+// Dim unfocused windows slightly. 1.0 = no dimming; lower = darker.
 window-rule {
     match is-active=false
-
     opacity 0.95
 }
 
+// Alacritty terminal: let the ring render over the terminal background and enable blur-behind.
 window-rule {
     match app-id="^Alacritty$"
     draw-border-with-background false
 
     background-effect {
-        xray true
+        xray true   // blur with "xray" mode (blurs behind while keeping content sharp)
     }
 }
 
-
-// Work around WezTerm's initial configure bug
-// by setting an empty default-column-width.
+// Firefox Picture-in-Picture opens floating. The regex matches host and Flatpak Firefox
+// (app-ids "firefox" and "org.mozilla.firefox").
 window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
-}
-
-// Open the Firefox picture-in-picture player as floating by default.
-window-rule {
-    // This app-id regular expression will work for both:
-    // - host Firefox (app-id is "firefox")
-    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     open-floating true
 }
 
-// Example: block out two password managers from screen capture.
-// (This example rule is commented out with a "/-" in front.)
+// Noctalia's own windows (e.g. its settings/editor surfaces) open floating.
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+}
+
+// Rounded corners everywhere: radius 12 logical px on all windows, and windows are clipped to
+// the rounded shape (otherwise corners would just paint over square content).
+window-rule {
+    geometry-corner-radius 7
+    clip-to-geometry true
+}
+
+// Example: hide KeePassXC/Secrets from screen capture. Currently disabled (/-).
 /-window-rule {
     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
     match app-id=r#"^org\.gnome\.World\.Secrets$"#
@@ -184,15 +150,11 @@ window-rule {
     // block-out-from "screencast"
 }
 
-// Example: enable rounded corners for all windows.
-// (This example rule is commented out with a "/-" in front.)
-/-window-rule {
-    geometry-corner-radius 12
-    clip-to-geometry true
-}
+// Where Print screenshots are saved. %Y %m %d %H %M %S = strftime time tokens.
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 binds {
-    // Noctalia integration.
+    // Noctalia IPC — "noctalia msg" talks to the running shell.
     Mod+Space hotkey-overlay-title="Noctalia Launcher" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     Mod+S hotkey-overlay-title="Noctalia Control Center" { spawn "noctalia" "msg" "panel-toggle" "control-center"; }
     Mod+Shift+S hotkey-overlay-title="Noctalia Settings" { spawn "noctalia" "msg" "settings-toggle"; }
@@ -200,14 +162,16 @@ binds {
     Mod+Shift+Escape hotkey-overlay-title="Session Menu" { spawn "noctalia" "msg" "panel-toggle" "session"; }
     Super+Alt+H hotkey-overlay-title="Lock and Hibernate" { spawn-sh "noctalia msg session lock; sleep 1; loginctl hibernate"; }
 
+    // Popup listing all binds (also the on-screen cheatsheet).
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return hotkey-overlay-title="Open a Terminal: alacritty" { spawn "alacritty"; }
-    Mod+D hotkey-overlay-title="Application Launcher: Noctalia" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     Super+Alt+L hotkey-overlay-title="Lock: Noctalia" { spawn "noctalia" "msg" "session" "lock"; }
 
+    // Toggle the Orca screen reader on/off (pkill exits it, otherwise start it).
     Super+Alt+S allow-when-locked=true hotkey-overlay-title=null { spawn-sh "pkill orca || exec orca"; }
+
+    // Media/volume/brightness keys. allow-when-locked=true = also work on the lock screen.
     XF86AudioRaiseVolume allow-when-locked=true { spawn "noctalia" "msg" "volume-up"; }
     XF86AudioLowerVolume allow-when-locked=true { spawn "noctalia" "msg" "volume-down"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
@@ -221,13 +185,13 @@ binds {
     XF86MonBrightnessUp allow-when-locked=true { spawn "noctalia" "msg" "brightness-up"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "noctalia" "msg" "brightness-down"; }
 
-    // Open/close the Overview: a zoomed-out view of workspaces and windows.
-    // You can also move the mouse into the top-left hot corner,
-    // or do a four-finger swipe up on a touchpad.
+    // Overview: zoomed-out view of workspaces/windows. Also via top-left hot corner or
+    // four-finger swipe up. repeat=false = ignore auto-repeat when held.
     Mod+O repeat=false { toggle-overview; }
 
     Mod+Q repeat=false { close-window; }
 
+    // Focus: arrows + hjkl (columns move horizontally, windows vertically within a column).
     Mod+Left  { focus-column-left; }
     Mod+Down  { focus-window-down; }
     Mod+Up    { focus-window-up; }
@@ -237,6 +201,7 @@ binds {
     Mod+K     { focus-window-up; }
     Mod+L     { focus-column-right; }
 
+    // Same keys with Ctrl: move instead of focus.
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Down  { move-window-down; }
     Mod+Ctrl+Up    { move-window-up; }
@@ -246,18 +211,16 @@ binds {
     Mod+Ctrl+K     { move-window-up; }
     Mod+Ctrl+L     { move-column-right; }
 
-    // Alternative commands that move across workspaces when reaching
-    // the first or last window in a column.
-    // Mod+J     { focus-window-or-workspace-down; }
-    // Mod+K     { focus-window-or-workspace-up; }
-    // Mod+Ctrl+J     { move-window-down-or-to-workspace-down; }
-    // Mod+Ctrl+K     { move-window-up-or-to-workspace-up; }
+    // Alternative cross-workspace focus/move when hitting column edges:
+    // Mod+J { focus-window-or-workspace-down; }   Mod+K { focus-window-or-workspace-up; }
+    // Mod+Ctrl+J { move-window-down-or-to-workspace-down; }   Mod+Ctrl+K { move-window-up-or-to-workspace-up; }
 
     Mod+Home { focus-column-first; }
     Mod+End  { focus-column-last; }
     Mod+Ctrl+Home { move-column-to-first; }
     Mod+Ctrl+End  { move-column-to-last; }
 
+    // Focus monitors (arrows or Shift+hjkl).
     Mod+Shift+Left  { focus-monitor-left; }
     Mod+Shift+Down  { focus-monitor-down; }
     Mod+Shift+Up    { focus-monitor-up; }
@@ -267,6 +230,7 @@ binds {
     Mod+Shift+K     { focus-monitor-up; }
     Mod+Shift+L     { focus-monitor-right; }
 
+    // Move the focused column to another monitor.
     Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
     Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
     Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
@@ -276,64 +240,49 @@ binds {
     Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
     Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
 
+    // Workspace navigation: PageUp/PageDown or U/I; Ctrl variants carry the column along.
     Mod+Page_Down      { focus-workspace-down; }
     Mod+Page_Up        { focus-workspace-up; }
-    Mod+U              { focus-workspace-down; }
-    Mod+I              { focus-workspace-up; }
+    Mod+I              { focus-workspace-down; }
+    Mod+U              { focus-workspace-up; }
     Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
     Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
-    Mod+Ctrl+U         { move-column-to-workspace-down; }
-    Mod+Ctrl+I         { move-column-to-workspace-up; }
+    Mod+Ctrl+I         { move-column-to-workspace-down; }
+    Mod+Ctrl+U         { move-column-to-workspace-up; }
 
-    // Alternatively, there are commands to move just a single window:
+    // Move only the window, keeping the column behind:
     // Mod+Ctrl+Page_Down { move-window-to-workspace-down; }
-    // ...
 
+    // Reorder workspaces themselves.
     Mod+Shift+Page_Down { move-workspace-down; }
     Mod+Shift+Page_Up   { move-workspace-up; }
     Mod+Shift+U         { move-workspace-down; }
     Mod+Shift+I         { move-workspace-up; }
 
-    // You can bind mouse wheel scroll ticks using the following syntax.
-    // These binds will change direction based on the natural-scroll setting.
-    //
-    // To avoid scrolling through workspaces really fast, you can use
-    // the cooldown-ms property. The bind will be rate-limited to this value.
-    // You can set a cooldown on any bind, but it's most useful for the wheel.
+    // Mouse wheel over the background: switch workspaces. cooldown-ms rate-limits each tick
+    // to avoid flying through workspaces. Ctrl variants move the column too.
     Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
     Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
     Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
     Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
 
+    // Horizontal wheel = column navigation.
     Mod+WheelScrollRight      { focus-column-right; }
     Mod+WheelScrollLeft       { focus-column-left; }
     Mod+Ctrl+WheelScrollRight { move-column-right; }
     Mod+Ctrl+WheelScrollLeft  { move-column-left; }
 
-    // Usually scrolling up and down with Shift in applications results in
-    // horizontal scrolling; these binds replicate that.
+    // Shift+wheel replicates horizontal scroll like in apps.
     Mod+Shift+WheelScrollDown      { focus-column-right; }
     Mod+Shift+WheelScrollUp        { focus-column-left; }
     Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
     Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
-    // Similarly, you can bind touchpad scroll "ticks".
-    // Touchpad scrolling is continuous, so for these binds it is split into
-    // discrete intervals.
-    // These binds are also affected by touchpad's natural-scroll, so these
-    // example binds are "inverted", since we have natural-scroll enabled for
-    // touchpads by default.
-    // Mod+TouchpadScrollDown { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+"; }
-    // Mod+TouchpadScrollUp   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-"; }
+    // Touchpad scroll binds (continuous input split into ticks); disabled here:
+    // Mod+TouchpadScrollDown/Up — direction follows the touchpad natural-scroll setting.
 
-    // You can refer to workspaces by index. However, keep in mind that
-    // niri is a dynamic workspace system, so these commands are kind of
-    // "best effort". Trying to refer to a workspace index bigger than
-    // the current workspace count will instead refer to the bottommost
-    // (empty) workspace.
-    //
-    // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
-    // will all refer to the 3rd workspace.
+    // Numbered workspaces. niri workspaces are dynamic: an index beyond existing workspaces
+    // targets the bottommost empty one, so 1–9 always behave sanely.
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
     Mod+3 { focus-workspace 3; }
@@ -353,125 +302,72 @@ binds {
     Mod+Ctrl+8 { move-column-to-workspace 8; }
     Mod+Ctrl+9 { move-column-to-workspace 9; }
 
-    // Alternatively, there are commands to move just a single window:
+    // Move just the window, keeping the column behind:
     // Mod+Ctrl+1 { move-window-to-workspace 1; }
-
-    // Switches focus between the current and the previous workspace.
     // Mod+Tab { focus-workspace-previous; }
 
-    // The following binds move the focused window in and out of a column.
-    // If the window is alone, they will consume it into the nearby column to the side.
-    // If the window is already in a column, they will expel it out.
+    // Merge/extract windows between columns: a lone window joins the neighbor column;
+    // a window inside a column is expelled out of it.
     Mod+BracketLeft  { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
 
-    // Consume one window from the right to the bottom of the focused column.
-    Mod+Comma  { consume-window-into-column; }
-    // Expel the bottom window from the focused column to the right.
-    Mod+Period { expel-window-from-column; }
+    Mod+Comma  { consume-window-into-column; }   // pull the window from the right into this column
+    Mod+Period { expel-window-from-column; }     // push the bottom window out to the right
 
-    // Cycle through widths set in preset-column-widths.
+    // Cycle the preset-column-widths (Shift = reverse). Window-height variants only matter
+    // inside a column with multiple windows.
     Mod+R { switch-preset-column-width; }
-    // Cycling through the presets in reverse order is also possible.
     Mod+Shift+R { switch-preset-column-width-back; }
 
     Mod+Ctrl+Shift+R { switch-preset-window-height; }
     Mod+Ctrl+R { reset-window-height; }
 
-    Mod+F { maximize-column; }
-    Mod+Shift+F { fullscreen-window; }
+    Mod+F { maximize-column; }        // column takes the monitor width, gaps/borders kept
+    Mod+Shift+F { fullscreen-window; } // true fullscreen: no bars, gaps, or borders
 
-    // While maximize-column leaves gaps and borders around the window,
-    // maximize-window-to-edges doesn't: the window expands to the edges of the screen.
-    // This bind corresponds to normal window maximizing,
-    // e.g. by double-clicking on the titlebar.
-    Mod+M { maximize-window-to-edges; }
+    Mod+M { maximize-window-to-edges; } // window fills the screen edge-to-edge (like double-click maximize)
 
-    // Expand the focused column to space not taken up by other fully visible columns.
-    // Makes the column "fill the rest of the space".
-    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+Ctrl+F { expand-column-to-available-width; } // grow the column into free space
 
     Mod+C { center-column; }
-
-    // Center all fully visible columns on screen.
     Mod+Ctrl+C { center-visible-columns; }
 
-    // Finer width adjustments.
-    // This command can also:
-    // * set width in pixels: "1000"
-    // * adjust width in pixels: "-5" or "+5"
-    // * set width as a percentage of screen width: "25%"
-    // * adjust width as a percentage of screen width: "-10%" or "+10%"
-    // Pixel sizes use logical, or scaled, pixels. I.e. on an output with scale 2.0,
-    // set-column-width "100" will make the column occupy 200 physical screen pixels.
+    // Width/height steps; also accepts absolute px ("1000"), px deltas ("+5"),
+    // and percent ("25%", "-10%"). Pixels are logical (scale 2 doubles physical size).
     Mod+Minus { set-column-width "-10%"; }
     Mod+Equal { set-column-width "+10%"; }
 
-    // Finer height adjustments when in column with other windows.
     Mod+Shift+Minus { set-window-height "-10%"; }
     Mod+Shift+Equal { set-window-height "+10%"; }
 
-    // Move the focused window between the floating and the tiling layout.
+    // Floating/tiling: Mod+V floats or tiles the window; Mod+Shift+V jumps focus between layers.
     Mod+V       { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
 
-    // Toggle tabbed column display mode.
-    // Windows in this column will appear as vertical tabs,
-    // rather than stacked on top of each other.
+    // Tabs within a column: windows stack vertically as tabs.
     Mod+W { toggle-column-tabbed-display; }
 
-    // Actions to switch layouts.
-    // Note: if you uncomment these, make sure you do NOT have
-    // a matching layout switch hotkey configured in xkb options above.
-    // Having both at once on the same hotkey will break the switching,
-    // since it will switch twice upon pressing the hotkey (once by xkb, once by niri).
+    // Layout switching via xkb (disabled here). If enabled, do NOT also bind the same keys in
+    // the xkb options — double switching breaks it (once by xkb, once by niri).
     // Mod+Space       { switch-layout "next"; }
     // Mod+Shift+Space { switch-layout "prev"; }
 
-    Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
-    Alt+Print { screenshot-window; }
+    Print { screenshot; }          // region picker
+    Ctrl+Print { screenshot-screen; }  // whole monitor
+    Alt+Print { screenshot-window; }   // focused window
 
-    // Applications such as remote-desktop clients and software KVM switches may
-    // request that niri stops processing the keyboard shortcuts defined here
-    // so they may, for example, forward the key presses as-is to a remote machine.
-    // It's a good idea to bind an escape hatch to toggle the inhibitor,
-    // so a buggy application can't hold your session hostage.
-    //
-    // The allow-inhibiting=false property can be applied to other binds as well,
-    // which ensures niri always processes them, even when an inhibitor is active.
+    // Escape hatch: remote-desktop/KVM apps can inhibit niri's shortcuts; this toggles the
+    // inhibitor off if an app holds it hostage. allow-inhibiting=false = this bind always works.
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 
-    // The quit action will show a confirmation dialog to avoid accidental exits.
+    // Quit shows a confirmation dialog first.
     Mod+Shift+E { quit; }
     Ctrl+Alt+Delete { quit; }
 
-    // Powers off the monitors. To turn them back on, do any input like
-    // moving the mouse or pressing any other key.
+    // Monitor power-off; any input wakes the screens.
     Mod+Shift+P { power-off-monitors; }
 }
 
-
-// Desktop integration added by install-niri-noctalia.sh.
-window-rule {
-    geometry-corner-radius 12
-    clip-to-geometry true
-}
-
-window-rule {
-    match app-id="dev.noctalia.Noctalia"
-    open-floating true
-}
-
-debug {
-    honor-xdg-activation-with-invalid-serial
-    // Keep normal compositor rendering on Intel.
-}
-
-environment {
-    XDG_DATA_DIRS "/usr/local/share:/usr/share:/var/lib/flatpak/exports/share:/home/user/.local/share/flatpak/exports/share"
-}
-
-
-include "noctalia.kdl"
-include "gpu-mode.kdl"
+// Desktop integration added by install-niri-noctalia.sh:
+include "noctalia.kdl"   // theme colors (focus ring, border, shadow, tabs) — AUTO-GENERATED by Noctalia, don't hand-edit
+include "gpu-mode.kdl"   // render device pin for hybrid graphics
