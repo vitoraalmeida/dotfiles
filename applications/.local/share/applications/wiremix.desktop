@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=WireMix
+Comment=PipeWire audio mixer
+Exec=alacritty -e wiremix
+Icon=audio-volume-high
+Terminal=false
+Categories=AudioVideo;Audio;
+Keywords=audio;mixer;pipewire;wiremix;
+StartupNotify=false

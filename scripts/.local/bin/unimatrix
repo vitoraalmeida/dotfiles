@@ -171,7 +171,9 @@ parser.add_argument('-b', '--all-bold',
 parser.add_argument('-c', '--color',
                     default='green',
                     help='one of: green (default), red, blue, white, yellow, \
-                          cyan, magenta, black',
+                           cyan, magenta, black',
+                    choices=('green', 'red', 'blue', 'white', 'yellow', 'cyan',
+                             'magenta', 'black', 'default'),
                     type=str)
 parser.add_argument('-f', '--flashers',
                     action='store_true',
@@ -179,6 +181,8 @@ parser.add_argument('-f', '--flashers',
 parser.add_argument('-g', '--bg-color',
                     default='default',
                     help='background color (see -c)',
+                    choices=('green', 'red', 'blue', 'white', 'yellow', 'cyan',
+                             'magenta', 'black', 'default'),
                     type=str)
 parser.add_argument('-h', '--help',
                     help='display extended usage information and exit.',
@@ -273,6 +277,8 @@ if args.character_list:
             print("Letter '%s' does not represent a valid character list."
                   % letter)
             exit()
+    if not chars:
+        parser.error("character list 'u' requires non-empty custom characters")
 
 # "-l" not used, but "-u" is set
 elif args.custom_characters:

@@ -11,6 +11,7 @@ bluez-5.86_2
 bridge-utils-1.7.1_1
 brightnessctl-0.5.1_1
 cabextract-1.11_1
+chafa-1.18.2_2
 cmatrix-2.0_2
 cronie-1.7.2_2
 cryptsetup-2.8.7_1
@@ -53,6 +54,7 @@ libstdc++-32bit-14.2.1+20250405_4
 libva-32bit-2.24.1_1
 libvirt-12.6.0_1
 linux-headers-6.18_1
+lm_sensors-3.6.0_2
 luarocks-3.13.0_1
 lutris-0.5.22_2
 mesa-demos-9.0.0_2
@@ -67,6 +69,7 @@ noto-fonts-emoji-2.051_2
 noto-fonts-ttf-2026.08.01_1
 nvidia-595.91.07_1
 nvidia-libs-32bit-595.91.07_1
+nvme-cli-2.16_1
 openssl-3.6.3_1
 p7zip-26.02_1
 parted-3.7_1
@@ -83,6 +86,7 @@ rsync-3.4.4_1
 sbsigntool-0.9.4_6
 sdbus-c++-2.3.1_1
 slurp-1.5.0_2
+smartmontools-7.5_1
 snapper-0.13.1_2
 sshpass-1.10_1
 steam-1.0.0.87_1
@@ -105,6 +109,7 @@ vulkan-loader-32bit-1.4.350.1_1
 wev-1.0.0_2
 wine-11.16_1
 winetricks-20260125_1
+wiremix-0.11.0_1
 wl-clipboard-2.3.0_1
 xdg-desktop-portal-1.22.1_1
 xdg-desktop-portal-gnome-48.0_1
@@ -114,3 +119,4 @@ xdg-utils-1.2.1_1
 xkeyboard-config-2.48_1
 xmirror-0.4.1_1
 xwayland-satellite-0.8.2_1
+yazi-26.1.22_2

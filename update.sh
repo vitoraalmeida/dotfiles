@@ -10,9 +10,11 @@ sync_dir() {
 
     [ -d "$SRC" ] || return 0
 
-    rm -rf "$DEST"
     mkdir -p "$(dirname "$DEST")"
-    cp -a "$SRC" "$DEST"
+    TEMP_DEST="$(mktemp -d "$(dirname "$DEST")/.sync.XXXXXX")"
+    cp -a "$SRC"/. "$TEMP_DEST"
+    rm -rf "$DEST"
+    mv "$TEMP_DEST" "$DEST"
 }
 
 sync_dir "$HOME/.config/niri" \
@@ -61,14 +63,24 @@ if command -v dconf >/dev/null 2>&1; then
         > "$DOTFILES/dconf/gnome-interface.ini"
 fi
 
-xbps-query -m 2>/dev/null |
-    sort \
-    > "$DOTFILES/packages/xbps-manual.txt" || true
+PACKAGE_LIST="$(mktemp)"
+if command -v xbps-query >/dev/null 2>&1 &&
+   xbps-query -m > "$PACKAGE_LIST" 2>/dev/null
+then
+    sort "$PACKAGE_LIST" > "$DOTFILES/packages/xbps-manual.txt"
+else
+    echo "AVISO: não foi possível atualizar a lista de pacotes XBPS." >&2
+fi
+rm -f "$PACKAGE_LIST"
 
 if command -v flatpak >/dev/null 2>&1; then
-    flatpak list --app --columns=application 2>/dev/null |
-        sort \
-        > "$DOTFILES/packages/flatpak-apps.txt"
+    PACKAGE_LIST="$(mktemp)"
+    if flatpak list --app --columns=application > "$PACKAGE_LIST" 2>/dev/null; then
+        sort "$PACKAGE_LIST" > "$DOTFILES/packages/flatpak-apps.txt"
+    else
+        echo "AVISO: não foi possível atualizar a lista de aplicativos Flatpak." >&2
+    fi
+    rm -f "$PACKAGE_LIST"
 fi
 
 echo "Snapshot atualizado."

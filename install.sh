@@ -167,7 +167,7 @@ echo "  $BACKUP"
 echo
 echo "Não apague esse backup até confirmar que a sessão está"
 echo "funcionando como esperado."
-EOFcd ~/dotfiles
+exit 0
 
 cat > install.sh <<'EOF'
 #!/bin/sh
