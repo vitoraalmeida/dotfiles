@@ -1,0 +1,76 @@
+[general]
+import = [
+    "~/.config/alacritty/themes/osaka.toml"
+]
+
+[window]
+dynamic_title = true
+
+padding = { x = 10, y = 8 }
+dynamic_padding = false
+
+opacity = 0.97
+
+# Useful if you want applications to know the terminal dimensions immediately.
+resize_increments = false
+
+[scrolling]
+history = 10000
+multiplier = 6
+
+[font]
+size = 14.0
+
+[font.normal]
+family = "Inconsolata Nerd Font Mono"
+style = "Regular"
+
+[font.bold]
+family = "Inconsolata Nerd Font Mono"
+style = "Bold"
+
+[font.italic]
+family = "Inconsolata Nerd Font Mono"
+style = "Italic"
+
+[font.bold_italic]
+family = "Inconsolata Nerd Font Mono"
+style = "Bold Italic"
+
+[font.offset]
+x = -1
+y = 0
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }
+unfocused_hollow = true
+
+[selection]
+save_to_clipboard = true
+
+[mouse]
+hide_when_typing = true
+
+[bell]
+animation = "EaseOutExpo"
+duration = 0
+
+[terminal]
+osc52 = "CopyPaste"
+
+[keyboard]
+bindings = [
+    # Increase font
+    { key = "Equals", mods = "Control", action = "IncreaseFontSize" },
+    { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
+
+    # Decrease font
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+
+    # Reset font
+    { key = "Key0", mods = "Control", action = "ResetFontSize" },
+
+    # Copy / paste
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+]

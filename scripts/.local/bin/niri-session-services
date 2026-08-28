@@ -1,0 +1,26 @@
+#!/bin/sh
+
+dbus-update-activation-environment \
+    DISPLAY \
+    WAYLAND_DISPLAY \
+    XDG_CURRENT_DESKTOP \
+    XDG_SESSION_DESKTOP \
+    XDG_SESSION_TYPE \
+    XDG_RUNTIME_DIR 2>/dev/null || true
+
+if ! pgrep -x pipewire >/dev/null 2>&1; then
+    pipewire >/tmp/pipewire-"$UID".log 2>&1 &
+fi
+
+i=0
+while [ "$i" -lt 50 ] && \
+      [ ! -S "${XDG_RUNTIME_DIR:-/run/user/$UID}/pipewire-0" ]; do
+    sleep 0.1
+    i=$((i + 1))
+done
+
+if ! pgrep -u "$UID" -x gnome-keyring-daemon >/dev/null 2>&1; then
+    gnome-keyring-daemon --start --components=secrets >/dev/null 2>&1 || true
+fi
+
+exec noctalia --daemon

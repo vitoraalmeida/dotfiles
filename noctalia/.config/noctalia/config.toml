@@ -1,0 +1,33 @@
+[lockscreen]
+enabled = true
+lock_before_suspend = true
+fingerprint = false
+
+[idle]
+behavior_order = ["lock", "screen-off", "suspend"]
+pre_action_fade_seconds = 2.0
+
+[idle.behavior.lock]
+timeout = 300
+action = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 600
+action = "screen_off"
+enabled = true
+
+[idle.behavior.suspend]
+timeout = 1800
+action = "lock_and_suspend"
+enabled = true
+
+[shell]
+niri_overview_type_to_launch_enabled = true
+font_family = "Inconsolata Nerd Font"
+
+[widget.void]
+type = "custom_button"
+glyph = "U+F32E"
+tooltip = "Void Linux"
+interactive = false

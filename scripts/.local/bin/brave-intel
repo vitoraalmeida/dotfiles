@@ -1,0 +1,3 @@
+#!/bin/sh
+export FLATPAK_GL_DRIVERS=default
+exec flatpak run com.brave.Browser "$@"

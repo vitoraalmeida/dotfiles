@@ -1,0 +1,25 @@
+# Editor
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+*.old
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.kdbx
+credentials*
+secrets*
+
+# Neovim generated/runtime files
+nvim/.config/nvim/.luarc.json
+
+# Common generated files
+.DS_Store
+Thumbs.db

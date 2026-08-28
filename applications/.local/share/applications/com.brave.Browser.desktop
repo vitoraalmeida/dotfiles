@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Brave Browser
+Comment=Web Browser
+Exec=/home/user/.local/bin/brave-intel %U
+Icon=com.brave.Browser
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+StartupNotify=true

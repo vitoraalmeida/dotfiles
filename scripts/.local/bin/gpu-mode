@@ -1,0 +1,224 @@
+#!/bin/sh
+
+set -u
+
+CONFIG="$HOME/.config/niri/gpu-mode.kdl"
+MODES="$HOME/.config/niri/gpu-modes"
+VM="voidlinux-base-niri"
+
+GPU="0000:01:00.0"
+GPU_SHORT="01:00.0"
+
+gpu_driver() {
+    if [ -L "/sys/bus/pci/devices/$GPU/driver" ]; then
+        basename "$(readlink "/sys/bus/pci/devices/$GPU/driver")"
+    else
+        echo "none"
+    fi
+}
+
+vm_state() {
+    virsh -c qemu:///system domstate "$VM" 2>/dev/null | tr -d '\r'
+}
+
+configured_mode() {
+    if [ ! -f "$CONFIG" ]; then
+        echo "UNKNOWN"
+    elif grep -q 'ignore-drm-device' "$CONFIG"; then
+        echo "VFIO"
+    else
+        echo "HDMI"
+    fi
+}
+
+nvidia_users() {
+    sudo lsof /dev/nvidia* 2>/dev/null || true
+}
+
+niri_uses_nvidia() {
+    nvidia_users | awk '$1 == "niri" { found=1 } END { exit !found }'
+}
+
+any_nvidia_users() {
+    [ -n "$(nvidia_users)" ]
+}
+
+hdmi_state() {
+    for f in /sys/class/drm/card*-HDMI-A-*/status; do
+        [ -e "$f" ] || continue
+
+        dev="$(readlink -f "$(dirname "$f")/device" 2>/dev/null || true)"
+
+        case "$dev" in
+            *0000:01:00.0*)
+                cat "$f"
+                return
+                ;;
+        esac
+    done
+
+    echo "unknown"
+}
+
+show_status() {
+    MODE="$(configured_mode)"
+    DRIVER="$(gpu_driver)"
+    VMSTATE="$(vm_state)"
+    HDMI="$(hdmi_state)"
+    USERS="$(nvidia_users)"
+
+    echo "========== GPU MODE STATUS =========="
+    echo
+    echo "Configured mode : $MODE"
+    echo "GPU driver      : $DRIVER"
+    echo "VM state        : $VMSTATE"
+    echo "HDMI            : $HDMI"
+
+    echo
+    echo "=== NVIDIA USERS ==="
+
+    if [ -n "$USERS" ]; then
+        printf '%s\n' "$USERS"
+    else
+        echo "none"
+    fi
+
+    echo
+    echo "=== VFIO ==="
+
+    if printf '%s\n' "$VMSTATE" | grep -qi '^running'; then
+        if [ "$DRIVER" = "vfio-pci" ]; then
+            echo "ACTIVE: VM currently owns the T1000."
+        else
+            echo "WARNING: VM is running but GPU driver is '$DRIVER'."
+        fi
+
+    elif [ "$MODE" != "VFIO" ]; then
+        echo "NOT READY: configured mode is HDMI."
+        echo "Run:"
+        echo "  gpu-mode vfio"
+
+    elif niri_uses_nvidia; then
+        echo "NOT READY: Niri still owns the NVIDIA GPU."
+        echo "Restart the Niri session."
+
+    elif any_nvidia_users; then
+        echo "NOT READY: another process is using NVIDIA."
+        echo "Close the process shown above."
+
+    elif [ "$DRIVER" != "nvidia" ]; then
+        echo "NOT READY: expected host driver 'nvidia', got '$DRIVER'."
+
+    else
+        echo "READY: you can start the VFIO VM."
+        echo
+        echo "  virsh -c qemu:///system start $VM"
+    fi
+
+    echo
+    echo "=== HDMI HOST MODE ==="
+
+    if printf '%s\n' "$VMSTATE" | grep -qi '^running'; then
+        echo "NOT READY: VM currently owns the NVIDIA GPU."
+        echo "Shut down the VM first."
+
+    elif [ "$DRIVER" != "nvidia" ]; then
+        echo "NOT READY: NVIDIA has not returned to the host."
+        echo "Current driver: $DRIVER"
+
+    elif [ "$MODE" = "HDMI" ] && niri_uses_nvidia; then
+        echo "ACTIVE: Niri is using the NVIDIA GPU."
+
+        if [ "$HDMI" = "connected" ]; then
+            echo "HDMI monitor is connected."
+        else
+            echo "HDMI monitor is not currently detected."
+        fi
+
+    elif [ "$MODE" = "HDMI" ]; then
+        echo "PENDING: HDMI profile is selected, but Niri has not attached to NVIDIA."
+        echo "Restart the Niri session."
+
+    else
+        echo "READY TO SWITCH: GPU belongs to the host."
+        echo "Run:"
+        echo "  gpu-mode hdmi"
+        echo "Then restart the Niri session."
+    fi
+
+    echo
+    echo "====================================="
+}
+
+case "${1:-}" in
+    vfio)
+        state="$(vm_state)"
+
+        if printf '%s\n' "$state" | grep -qi '^running'; then
+            echo "VFIO is already active: VM is running."
+            exit 0
+        fi
+
+        cp "$MODES/vfio.kdl" "$CONFIG"
+        sleep 1
+
+        if niri_uses_nvidia; then
+            echo "VFIO profile selected."
+            echo "Niri still owns NVIDIA."
+            echo
+            echo "Restart Niri:"
+            echo "  niri msg action quit --skip-confirmation"
+            echo
+            echo "Then from the TTY:"
+            echo "  start-niri"
+            exit 2
+        fi
+
+        if any_nvidia_users; then
+            echo "VFIO profile selected, but NVIDIA is still in use:"
+            nvidia_users
+            exit 1
+        fi
+
+        echo "OK: NVIDIA is free for VFIO."
+        ;;
+
+    hdmi)
+        state="$(vm_state)"
+
+        if printf '%s\n' "$state" | grep -qi '^running'; then
+            echo "ERROR: VM is running and owns the NVIDIA GPU."
+            echo "Shut down the VM first."
+            exit 1
+        fi
+
+        if [ "$(gpu_driver)" != "nvidia" ]; then
+            echo "ERROR: NVIDIA is not attached to the host driver."
+            echo "Current driver: $(gpu_driver)"
+            exit 1
+        fi
+
+        cp "$MODES/hdmi.kdl" "$CONFIG"
+        sleep 1
+
+        if niri_uses_nvidia; then
+            echo "OK: HDMI mode is active."
+        else
+            echo "HDMI profile selected."
+            echo "Restart Niri:"
+            echo "  niri msg action quit --skip-confirmation"
+            echo
+            echo "Then from the TTY:"
+            echo "  start-niri"
+        fi
+        ;;
+
+    status)
+        show_status
+        ;;
+
+    *)
+        echo "Usage: gpu-mode {vfio|hdmi|status}"
+        exit 1
+        ;;
+esac
