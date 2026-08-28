@@ -99,7 +99,6 @@ widget_order = [ "lockscreen-login-box@HDMI-A-3", "lockscreen-login-box@eDP-1" ]
 
 [shell]
 corner_radius_scale = 0.55000000819563866
-font_family = "Inconsolata Nerd Font Mono"
 lang = "en"
 
     [shell.screen_corners]

@@ -1,44 +1,69 @@
+# Noctalia shell config (hand-written layer). Docs: https://docs.noctalia.dev
+# Noctalia merges every *.toml in ~/.config/noctalia/, then applies GUI overrides from
+# ~/.local/state/noctalia/settings.toml — GUI values WIN over this file.
+# Most settings hot-reload on save.
+
 [lockscreen]
+# Noctalia's own lock screen. false = no lock UI from noctalia (idle lock then does nothing visible).
 enabled = true
+# Lock whenever the system suspends, whatever triggered it (lid, idle, manual). false = resume straight to desktop.
 lock_before_suspend = true
+# Permit fingerprint unlock. Requires fprintd to be configured with enrolled fingers.
 fingerprint = false
 
 [idle]
+# Which idle behaviors participate and their trigger order. Each name must have a
+# matching [idle.behavior.<name>] table below.
 behavior_order = ["lock", "screen-off", "suspend"]
+# Seconds of fade-out animation before an idle action fires. 0 = instant.
 pre_action_fade_seconds = 2.0
 
 [idle.behavior.lock]
+# Lock after 300s (5 min) idle. action="lock" engages the lock screen; enabled=false skips this step.
 timeout = 300
 action = "lock"
 enabled = true
 
 [idle.behavior.screen-off]
+# Turn monitors off after 600s (10 min) idle. action="screen_off"; any input wakes the screens.
 timeout = 600
 action = "screen_off"
 enabled = true
 
 [idle.behavior.suspend]
+# After 1800s (30 min) idle: "lock_and_suspend" locks then suspends.
+# Note: [lockscreen].lock_before_suspend=true already locks on every suspend, so this is a
+# belt-and-suspenders overlap; switching action to "suspend" would rely on that instead.
 timeout = 1800
 action = "lock_and_suspend"
 enabled = true
 
 [shell]
+# Noctalia <-> niri Overview integration: type-to-launch from niri's overview goes through noctalia.
 niri_overview_type_to_launch_enabled = true
-font_family = "Inconsolata Nerd Font"
+# Font for the whole shell UI (bar, panels). Keep a Mono variant or bar widgets misalign.
+# GUI overrides live in settings.toml — if this value seems ignored, check there.
+font_family = "Inconsolata Nerd Font Mono"
 
 [widget.void]
+# Bar widget: a static Nerd Font glyph (U+F32E = Void Linux logo) with a tooltip.
+# interactive=false: clicks pass through; set true to make it a clickable button.
 type = "custom_button"
 glyph = "U+F32E"
 tooltip = "Void Linux"
 interactive = false
 
 [location]
+# Use the fixed sunrise/sunset times below instead of automatic geo/IP-based lookup.
+# These boundaries drive nightlight and any day/night theme switching.
 custom_schedule = true
-sunset = "18:00"
-sunrise = "06:00"
+sunset = "18:00"   # 24h "HH:MM" — nightlight starts warming toward this time
+sunrise = "06:00"  # 24h "HH:MM" — nightlight returns to day temperature from this time
 
 [nightlight]
+# Screen color-temperature shift. force=true pins the night temperature permanently,
+# ignoring the sunrise/sunset schedule.
 enabled = true
 force = false
-temperature_day = 6500
-temperature_night = 4000
+temperature_day = 6500    # Kelvin; ~6500 is neutral daylight
+temperature_night = 4000  # Kelvin; lower = warmer/more orange at night
