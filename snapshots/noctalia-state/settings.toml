@@ -8,7 +8,7 @@ border = "primary"
 border_width = 1.5
 capsule_fill = "outline"
 capsule_thickness = 0.67999998852610588
-center = [ "clock", "media" ]
+center = [ "clock", "nightlight", "media" ]
 concave_edge_corners = false
 end = [
     "tray",
