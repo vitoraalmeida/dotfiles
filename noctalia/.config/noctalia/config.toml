@@ -19,22 +19,22 @@ behavior_order = ["lock", "screen-off", "suspend"]
 pre_action_fade_seconds = 2.0
 
 [idle.behavior.lock]
-# Lock after 300s (5 min) idle. action="lock" engages the lock screen; enabled=false skips this step.
-timeout = 300
+# Lock after 600s (10 min) idle. action="lock" engages the lock screen; enabled=false skips this step.
+timeout = 600
 action = "lock"
 enabled = true
 
 [idle.behavior.screen-off]
-# Turn monitors off after 600s (10 min) idle. action="screen_off"; any input wakes the screens.
-timeout = 600
+# Turn monitors off after 1800s (30 min) idle. action="screen_off"; any input wakes the screens.
+timeout = 1800
 action = "screen_off"
 enabled = true
 
 [idle.behavior.suspend]
-# After 1800s (30 min) idle: "lock_and_suspend" locks then suspends.
+# After 7200s (2 h) idle: "lock_and_suspend" locks then suspends.
 # Note: [lockscreen].lock_before_suspend=true already locks on every suspend, so this is a
 # belt-and-suspenders overlap; switching action to "suspend" would rely on that instead.
-timeout = 1800
+timeout = 7200
 action = "lock_and_suspend"
 enabled = true
 
