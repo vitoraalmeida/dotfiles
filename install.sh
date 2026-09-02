@@ -12,6 +12,20 @@ command -v stow >/dev/null 2>&1 || {
     exit 1
 }
 
+# As configs assumem a Iosevka Nerd Font (alacritty, noctalia, gtk,
+# fontconfig), mas a fonte não vive nos dotfiles — instale-a antes:
+#   https://github.com/ryanoasis/nerd-fonts/releases (Iosevka.zip)
+if command -v fc-list >/dev/null 2>&1; then
+    if ! fc-list | grep -qi "Iosevka Nerd Font"; then
+        echo "AVISO: Iosevka Nerd Font não encontrada via fc-list."
+        echo "  Os configs vão cair em fontes de fallback até você instalá-la."
+        echo "  Baixe Iosevka.zip de https://github.com/ryanoasis/nerd-fonts/releases"
+        echo "  e extraia em ~/.local/share/fonts/IosevkaNerdFont, depois rode fc-cache -f"
+    else
+        echo "OK: Iosevka Nerd Font encontrada."
+    fi
+fi
+
 mkdir -p "$BACKUP"
 
 backup_target() {

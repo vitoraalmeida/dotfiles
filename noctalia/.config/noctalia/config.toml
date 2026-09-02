@@ -43,7 +43,7 @@ enabled = true
 niri_overview_type_to_launch_enabled = true
 # Font for the whole shell UI (bar, panels). Keep a Mono variant or bar widgets misalign.
 # GUI overrides live in settings.toml — if this value seems ignored, check there.
-font_family = "Inconsolata Nerd Font Mono"
+font_family = "Iosevka Nerd Font Mono"
 
 [widget.void]
 # Bar widget: a static Nerd Font glyph (U+F32E = Void Linux logo) with a tooltip.

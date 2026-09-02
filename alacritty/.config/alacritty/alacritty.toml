@@ -22,19 +22,19 @@ multiplier = 6
 size = 14.0
 
 [font.normal]
-family = "Inconsolata Nerd Font Mono"
+family = "Iosevka Nerd Font Mono"
 style = "Regular"
 
 [font.bold]
-family = "Inconsolata Nerd Font Mono"
+family = "Iosevka Nerd Font Mono"
 style = "Bold"
 
 [font.italic]
-family = "Inconsolata Nerd Font Mono"
+family = "Iosevka Nerd Font Mono"
 style = "Italic"
 
 [font.bold_italic]
-family = "Inconsolata Nerd Font Mono"
+family = "Iosevka Nerd Font Mono"
 style = "Bold Italic"
 
 [font.offset]
