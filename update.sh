@@ -12,7 +12,13 @@ sync_dir() {
 
     mkdir -p "$(dirname "$DEST")"
     TEMP_DEST="$(mktemp -d "$(dirname "$DEST")/.sync.XXXXXX")"
-    cp -a "$SRC"/. "$TEMP_DEST"
+
+    # -L: desreferencia symlinks (Stow cria links no $HOME, inclusive os
+    # próprios diretórios de config; sem -L o find não os atravessa).
+    find -L "$SRC" -mindepth 1 -maxdepth 1 | while IFS= read -r ITEM; do
+        cp -aL "$ITEM" "$TEMP_DEST"/ 2>/dev/null || true
+    done
+
     rm -rf "$DEST"
     mv "$TEMP_DEST" "$DEST"
 }
@@ -47,7 +53,8 @@ sync_dir "$HOME/.local/bin" \
 sync_dir "$HOME/.local/share/applications" \
          "$DOTFILES/applications/.local/share/applications"
 
-if [ -f "$HOME/.profile" ]; then
+# Quando gerenciado pelo Stow, ~/.profile já É o arquivo do repo — nada a copiar.
+if [ -f "$HOME/.profile" ] && [ ! -L "$HOME/.profile" ]; then
     cp -a "$HOME/.profile" "$DOTFILES/shell/.profile"
 fi
 
