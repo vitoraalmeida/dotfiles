@@ -18,14 +18,14 @@ Dotfiles pessoais para uma única máquina: **Void Linux + niri + Noctalia v5**
 | `applications/` | `~/.local/share/applications` — entradas .desktop (Brave, wiremix, yazi) |
 | `dconf/` | export de `/org/gnome/desktop/interface/` (tema GTK) |
 | `snapshots/` | estado do Noctalia (`settings.toml` da barra) restaurado pelo install.sh |
-| `packages/` | lista de pacotes XBPS instalados manualmente + flatpaks |
+| `packages/` | listas de pacotes: `xbps-roots.txt` (raízes do setup) e `xbps-manual.txt` (registro completo) + flatpaks |
 
 ## Instalação (máquina nova)
 
 Este repo é instalado **automaticamente** pelo script
 `install-niri-noctalia-secure.sh` do repositório
 [voidinstall](https://github.com/vitoraalmeida/voidinstall): ele clona o repo,
-instala stow + todos os pacotes de `packages/xbps-manual.txt`, os flatpaks de
+instala stow + as raízes de `packages/xbps-roots.txt`, os flatpaks de
 `packages/flatpak-apps.txt`, copia os wallpapers para
 `~/Pictures/Wallpapers` e roda este `install.sh` no final (aplicando as
 configs pessoais por cima das geradas).
@@ -60,6 +60,22 @@ autorreferenciais (bug que já ocorreu).
 ```sh
 ./update.sh
 ```
+
+### As duas listas de pacotes
+
+- **`xbps-roots.txt`** (curada, mão): os 97 pacotes **raiz** do setup — os que
+  representam decisões reais; XBPS puxa todo o resto como dependência. É a
+  lista usada pela reinstall (o `install-niri-noctalia-secure.sh` do
+  voidinstall a consome). Para identificá-las, o restante foi eliminado por
+  alcance transitivo no grafo de dependências do repositório (`xbps-query -R`).
+- **`xbps-manual.txt`** (auto-capturada): tudo que o XBPS marca como instalado
+  manualmente no momento do `update.sh`. Serve de registro de drift — o diff
+  entre commits mostra quando cada pacote entrou/saiu do sistema. Numa
+  instalação limpa, as dependências são marcadas como `automatic`, então essa
+  lista converge naturalmente para as raízes.
+
+Nunca edite `xbps-manual.txt` à mão (o `update.sh` o sobrescreve); ajustes de
+escopo vão em `xbps-roots.txt`.
 
 ## Ciclo de manutenção
 
