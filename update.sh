@@ -63,6 +63,10 @@ if [ -f "$HOME/.local/state/noctalia/settings.toml" ]; then
     cp -a \
         "$HOME/.local/state/noctalia/settings.toml" \
         "$DOTFILES/snapshots/noctalia-state/settings.toml"
+    # O snapshot não pode versionar o $HOME real (contém o username):
+    # o install.sh expande __HOME__ de volta ao restaurar.
+    sed -i "s|$HOME|__HOME__|g" \
+        "$DOTFILES/snapshots/noctalia-state/settings.toml"
 fi
 
 if command -v dconf >/dev/null 2>&1; then

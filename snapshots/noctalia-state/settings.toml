@@ -116,16 +116,16 @@ wallpaper_scheme = "m3-content"
     builtin_ids = [ "gtk3", "gtk4", "kitty", "niri", "qt", "scroll", "starship" ]
 
 [wallpaper]
-directory = "/home/user/Pictures/Wallpapers"
+directory = "__HOME__/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/user/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
+    path = "__HOME__/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
 
     [wallpaper.last]
-    path = "/home/user/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
+    path = "__HOME__/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/user/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
+    path = "__HOME__/Pictures/Wallpapers/osaka-jade-bg-2.jpg"
 
 [widget.clock]
 format = "{:%H:%M} {:%A, %x}"

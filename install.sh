@@ -136,8 +136,9 @@ echo "==> Restaurando estado da barra do Noctalia"
 # snapshots/noctalia-state/, então aqui o devolvemos ao lugar.
 if [ -s "$DOTFILES/snapshots/noctalia-state/settings.toml" ]; then
     mkdir -p "$HOME/.local/state/noctalia"
-    cp "$DOTFILES/snapshots/noctalia-state/settings.toml" \
-       "$HOME/.local/state/noctalia/settings.toml"
+    sed "s|__HOME__|$HOME|g" \
+        "$DOTFILES/snapshots/noctalia-state/settings.toml" \
+        > "$HOME/.local/state/noctalia/settings.toml"
     echo "    ~/.local/state/noctalia/settings.toml"
 fi
 

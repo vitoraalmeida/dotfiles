@@ -10,7 +10,7 @@ prefer-no-csd
 // Autostart. Runs ONLY at niri startup — reloading the config does not restart these.
 spawn-at-startup "pipewire"                                          // audio/video server; nothing audio-related works without it
 spawn-at-startup "sh" "-c" "sleep 2; exec wireplumber"               // pipewire session manager (volume routing, devices); 2s delay so pipewire's socket exists first
-spawn-at-startup "/home/user/.local/bin/niri-session-services"    // desktop integration script from install-niri-noctalia.sh
+spawn-at-startup "niri-session-services"    // desktop integration script from install-niri-noctalia.sh
 
 input {
     keyboard {
@@ -80,13 +80,6 @@ layout {
         offset x=0 y=5              // shadow displacement; y=5 pushes it down
         color "#0007"               // RRGGBBAA — black at ~44% opacity
     }
-}
-
-// Environment variables for processes niri spawns.
-environment {
-    // App lookup paths; the Flatpak entries make installed Flatpaks resolvable.
-    // Only change if apps fail to launch or find their resources.
-    XDG_DATA_DIRS "/usr/local/share:/usr/share:/var/lib/flatpak/exports/share:/home/user/.local/share/flatpak/exports/share"
 }
 
 debug {
